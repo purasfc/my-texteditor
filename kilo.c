@@ -16,6 +16,8 @@ struct termios orig_termios;
 /*** terminal ***/
 
 void die(const char *s) {
+	write(STDOUT_FILENO, "\x1b[2J", 4);
+	write(STDOUT_FILENO, "\x1b[H", 3);
 	perror(s); /* from stdio.h */
 	exit(1); /* from stdlib.h */
 }
@@ -54,6 +56,7 @@ char editorReadKey(void) {
  
 void editorRefreshScrean(void) {
 	write(STDOUT_FILENO, "\x1b[2J", 4); /* 4 -> writing four bytes. \x1b -> escape character, or 27 in decimal. = writing escape sequence to the terminal. escape sequence always start from an escape character (27) followed by [ character. J -> Erase In Dispay. Escape sequence cmmands take arguments, which come before the command. In this case, the argument is 2, -> clear the <screen>. <esc>[1J would clear the screen up to where the cursor is, and <esc>[0J */
+	write(STDOUT_FILENO, "\x1b[H", 3); /* reposition to the top of the terminal */
 }
 
 /*** input ***/
@@ -63,6 +66,8 @@ void editorProcessKeypress(void) {
 
 	switch (c) {
 		case CTRL_KEY('q'):
+			write(STDOUT_FILENO, "\x1b[2J", 4);
+			write(STDOUT_FILENO, "\x1b[2J", 3);
 			exit(0);
 			break;
 	}

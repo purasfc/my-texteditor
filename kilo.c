@@ -41,13 +41,19 @@ void enableRawMode(void) {
 	if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) die("tcsetattr");
 }
 
-char editorReadKey() {
+char editorReadKey(void) {
 	int nread;
 	char c;
 	while ((nread = read(STDIN_FILENO, &c, 1)) != 1) {
 		if (nread == -1 && errno != EAGAIN) die("read");
 	}
 	return c;
+}
+
+/*** output ***/
+ 
+void editorRefreshScrean(void) {
+	write(STDOUT_FILENO, "\x1b[2J", 4); /* 4 -> writing four bytes. \x1b -> escape character, or 27 in decimal. = writing escape sequence to the terminal. escape sequence always start from an escape character (27) followed by [ character. J -> Erase In Dispay. Escape sequence cmmands take arguments, which come before the command. In this case, the argument is 2, -> clear the <screen>. <esc>[1J would clear the screen up to where the cursor is, and <esc>[0J */
 }
 
 /*** input ***/
@@ -66,6 +72,7 @@ int main(void) {
 	enableRawMode();
 
 	while(1) {
+		editorRefreshScrean();
 		editorProcessKeypress();
 	}
 	return 0;
